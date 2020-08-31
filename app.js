@@ -40,6 +40,16 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(morgan('dev'));
 
+// Add headers
+app.use(function (req, res, next) {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Methods', 'GET');
+    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
+    res.setHeader('Access-Control-Allow-Credentials', true);
+    next();
+});
+
+
 router.post('/upload', upload.single('file'), (req, res) => {
     if (!req.file) {
       console.log("No file received");
@@ -58,7 +68,7 @@ router.post('/upload', upload.single('file'), (req, res) => {
         const channels = im.split();
         im.merge([channels[0],channels[1],channels[2]]);
         im.convertGrayscale();
-        
+
         var im_canny = im.copy();
       
         im_canny.canny(lowThresh, highThresh);
@@ -98,9 +108,9 @@ router.post('/upload', upload.single('file'), (req, res) => {
     }
 });
 
-router.get('/result', (req, res) => {
-    res.sendFile('./quad-detected.jpg');
-    console.log("File sent");
+router.get('/download', (req, res) => {
+    res.download(__dirname + '/quad-detected.jpg')
+    console.log("File download " + __dirname + "/quad-detected.jpg");
 })
 
 app.use('/', router);
